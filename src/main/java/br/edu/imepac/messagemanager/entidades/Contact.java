@@ -22,9 +22,9 @@ public class Contact {
     private String email;
     private Date birthDate;
 
-    @OneToMany(mappedBy = "contactReceiver")
+    @OneToMany(mappedBy = "contactReceiver", cascade = CascadeType.REMOVE)
     private List<Message> receivedMessages;
 
-    @OneToMany(mappedBy = "contactSender")
+    @OneToMany(mappedBy = "contactSender", cascade = CascadeType.REMOVE)
     private List<Message> sentMessages;
 }
