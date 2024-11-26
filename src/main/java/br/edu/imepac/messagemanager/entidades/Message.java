@@ -17,6 +17,9 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @Column(name = "api_key")
+    private String apiKey;
+
     @ManyToOne
     @JoinColumn(name = "contact_receiver_id")
     private Contact contactReceiver;

@@ -4,12 +4,13 @@ import br.edu.imepac.messagemanager.dtos.contact.ContactCreateDTO;
 import br.edu.imepac.messagemanager.dtos.contact.ContactDTO;
 import br.edu.imepac.messagemanager.entidades.Contact;
 import br.edu.imepac.messagemanager.repositories.ContactRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class ContactService {
@@ -17,44 +18,37 @@ public class ContactService {
     @Autowired
     private ContactRepository contactRepository;
 
+    @Autowired
+    ModelMapper modelMapper;
+
     public ContactDTO createContact(ContactCreateDTO contactCreateDTO) {
-        Contact contact = new Contact();
-        contact.setName(contactCreateDTO.getName());
-        contact.setEmail(contactCreateDTO.getEmail());
-        contact.setBirthDate(contactCreateDTO.getBirthDate());
+        Contact contact = modelMapper.map(contactCreateDTO, Contact.class);
         Contact savedContact = contactRepository.save(contact);
-        return convertToDTO(savedContact);
+        return modelMapper.map(savedContact, ContactDTO.class);
     }
 
-    public List<ContactDTO> getAllContacts() {
-        return contactRepository.findAll().stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+    public List<ContactDTO> getAllContacts(String apiKey) {
+        List<Contact> contacts = contactRepository.findByApiKey(apiKey);
+        return contacts.stream().map(contact -> modelMapper.map(contact, ContactDTO.class)).toList();
     }
 
-    public Optional<ContactDTO> getContactById(Long id) {
-        return contactRepository.findById(id).map(this::convertToDTO);
+    public ContactDTO getContactById(Long id, String apiKey) {
+        Contact contact = contactRepository.findByIdAndApiKey(id, apiKey);
+        return modelMapper.map(contact, ContactDTO.class);
     }
 
-    public ContactDTO updateContact(Long id, ContactCreateDTO contactCreateDTO) {
-        Optional<Contact> contactOptional = contactRepository.findById(id);
-        if (contactOptional.isPresent()) {
-            Contact contact = contactOptional.get();
-            contact.setName(contactCreateDTO.getName());
-            contact.setEmail(contactCreateDTO.getEmail());
-            contact.setBirthDate(contactCreateDTO.getBirthDate());
-            Contact updatedContact = contactRepository.save(contact);
-            return convertToDTO(updatedContact);
-        } else {
-            throw new RuntimeException("Contact not found with id " + id);
+    public ContactDTO updateContact(Long id, ContactCreateDTO contactCreateDTO, String apiKey) {
+        Contact contactSaved = contactRepository.findByIdAndApiKey(id, apiKey);
+        if (contactSaved == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Contact not found with id " + id);
         }
+        modelMapper.map(contactCreateDTO, contactSaved);
+        Contact updatedContact = contactRepository.save(contactSaved);
+        return modelMapper.map(updatedContact, ContactDTO.class);
     }
 
-    public void deleteContact(Long id) {
-        contactRepository.deleteById(id);
+    public void deleteContact(Long id, String apiKey) {
+        contactRepository.deleteByIdAndApiKey(id, apiKey);
     }
 
-    private ContactDTO convertToDTO(Contact contact) {
-        return new ContactDTO(contact.getId(), contact.getName(), contact.getEmail(), contact.getBirthDate());
-    }
 }

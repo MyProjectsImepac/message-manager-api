@@ -22,6 +22,18 @@ public class Contact {
     private String email;
     private Date birthDate;
 
+    private String cep;
+    private String logradouro;
+    private String complemento;
+    private String bairro;
+    private String localidade;
+    private String estado;
+    private String numero;
+
+    @Column(name = "api_key")
+    private String apiKey;
+
+
     @OneToMany(mappedBy = "contactReceiver", cascade = CascadeType.REMOVE)
     private List<Message> receivedMessages;
 

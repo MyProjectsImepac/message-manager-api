@@ -15,4 +15,7 @@ public class MessageCreateDTO {
     private ContactDTO contactReceiver;
     private ContactDTO contactSender;
     private String message;
+
+    private String apiKey;
+
 }

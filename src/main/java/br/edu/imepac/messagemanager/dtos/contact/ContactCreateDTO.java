@@ -15,4 +15,14 @@ public class ContactCreateDTO {
     private String name;
     private String email;
     private Date birthDate;
+
+    private String cep;
+    private String logradouro;
+    private String complemento;
+    private String bairro;
+    private String localidade;
+    private String estado;
+    private String numero;
+
+    private String apiKey;
 }
