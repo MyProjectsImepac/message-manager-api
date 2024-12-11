@@ -14,8 +14,12 @@ import java.util.List;
 @RequestMapping("/api/messages")
 public class MessageResource {
 
+    private final MessageService messageService;
+
     @Autowired
-    private MessageService messageService;
+    public MessageResource(MessageService messageService) {
+        this.messageService = messageService;
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
